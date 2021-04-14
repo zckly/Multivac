@@ -13,14 +13,15 @@ const headers = {
 };
 console.log(process.env);
 const solvePrompt = (question) => {
+  const prompt = `The best way to learn a new skill is to break it up into as many steps as possible. Here are a few examples of new skills and the list of steps needed to solve them.\n\nSkill: Front End Web Development\n1. Learn HTML\n2. Learn CSS\n3. Learn JS\n4. Learn Git\n5. Learn Svelte\n6. Learn React\nSkill: Data Science\n1. Learn Python\n2. Learn Pandas and Numpy\n3. Learn Data Exploration\n4. Learn Linear Regression\n5. Learn Logistic Regression\n6. Learn bagging algorithms\n7. Learn boosting algorithms\n8. Learn clustering\n9. Learn convolutional neural networks\n10. Learn recurring neural networks\n11. Learn Reinforcement Learning\n\nProblem: ${question}\n`;
   return {
-    prompt: `The best way to solve a hard problem is to break it up into as many components as possible. Here are a few examples of hard problems and the list of steps needed to solve them.\n\nProblem: How do I find love?\n1. Build confidence in yourself. You cannot find love if you do not first love yourself.\n2. Be active in the real world. Find hobbies, get involved in organizations, go to the gym, build friends, etc. Before you find a partner you must have friends.\n3. Practice communication skills. Learn how to talk about yourself and listen to others. This will help you build better relationships.\n4. Get outside your comfort zone. If you are not comfortable talking to strangers, start small. Talk to a cashier, or sit with a stranger at lunch.\n\nProblem: How can I get rich without getting lucky?\n1. Seek wealth, not money or status. Wealth is having assets that earn while you sleep. Money is how we transfer time and wealth. Status is your place in the social hierarchy.\n2. Ignore people playing status games. They gain status by attacking people playing wealth creation games.\n3. You will get rich by giving society what it wants but does not yet know how to get. At scale.\n4. Pick business partners with high intelligence, energy, and, above all, integrity.\n\nProblem: How do I get a higher GPA?\n1. Find a mentor. A good mentor will help you figure out what you do and do not know and set goals for each semester.\n2. Make a list of your GPA goals for each semester. Have a goal for each class you take.\n3. Have a goal for each class of the GPA you want to have at the end of the semester.\n4. Make a list of everything you can do to get that grade.\n5. Make a schedule for completing each item on the list.\n6. Follow the schedule.\n7. Keep going. Do not stop until you get where you want to go.\n\nProblem: ${question}\n1.`,
+    prompt,
     temperature: 0.7,
     max_tokens: 300,
     top_p: 1,
     frequency_penalty: 0.5,
     presence_penalty: 0,
-    stop: ["Problem:"],
+    stop: ["Skill:"],
   };
 };
 
@@ -32,7 +33,10 @@ async function solveProblem(question, depth) {
     const res = await axios.post(URL, data, { headers });
     const out = res.data.choices[0].text;
     let lines = out.split("\n").filter((line) => line.trim() !== "");
-    let statements = lines.map((line) => line.split(".")[1].trim());
+    console.log({ lines });
+    let statements = lines
+      .filter((line) => line.split(".").length > 1)
+      .map((line) => line.split(".")[1].trim());
 
     let nodes = [];
     for (const s of statements) {
@@ -117,21 +121,21 @@ function App() {
           }}
         >
           <div className="p-8  flex flex-col justify-center w-full">
-            <p className="text-5xl font-mono">Multivac</p>
+            <p className="text-5xl font-mono">Vivid</p>
             <p className="font-medium text-gray-800 text-md font-mono">
-              A general-purpose problem solver
+              Learn anything
             </p>
           </div>
 
           <div className="bg-gray-100 rounded p-8" style={{ maxWidth: 1000 }}>
             <p className="font-medium text-lg">
-              What problem would you like to solve?
+              What skill do you want to learn?
             </p>
             <textarea
               value={problem}
               onChange={(e) => setProblem(e.target.value)}
               className="w-full border shadow font- p-4 rounded-lg my-2"
-              placeholder="How do I find love?"
+              placeholder="UX Design"
             />
             {isLoading ? (
               <button className="font-medium text-white bg-blue-700 text-md px-4 py-2 flex items-center justify-center disabled opacity-75">
